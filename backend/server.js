@@ -1,8 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
+import { connectDB } from "./db/config.js";
 
 // configuring environment variables
 dotenv.config();
+
+// connecting to database
+connectDB();
 
 const port = process.env.PORT || 5000;
 
