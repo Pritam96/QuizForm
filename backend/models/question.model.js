@@ -24,7 +24,7 @@ const QuestionSetSchema = Schema(
     description: {
       type: String,
     },
-    questions: [Question],
+    questions: [QuestionSchema],
   },
   {
     timestamps: true,
@@ -32,4 +32,3 @@ const QuestionSetSchema = Schema(
 );
 
 export const QuestionSet = model("QuestionSet", QuestionSetSchema);
-export const Question = model("Question", QuestionSchema);
