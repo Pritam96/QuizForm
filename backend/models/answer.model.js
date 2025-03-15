@@ -35,4 +35,4 @@ const AnswerSchema = Schema(
   }
 );
 
-export const Answer = model("Answer", AnswerSchema);
+export const AnswerSet = model("AnswerSet", AnswerSchema);
