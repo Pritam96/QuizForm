@@ -11,7 +11,7 @@ const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_SERVER_URL;
 
-  console.log("User:", user);
+  //   console.log("User:", user);
 
   // Login existing user
   const loginAction = async (formData) => {
