@@ -8,6 +8,10 @@ import {
   updateQuestion,
   deleteQuestion,
   deleteQuestionSet,
+  assignQuestionSetToUser,
+  getAllAnswerSets,
+  modifyAnswer,
+  approveAnswerSet,
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -32,5 +36,17 @@ router.put("/question/:id", protect, adminOnly, updateQuestion);
 
 // DELETE /api/admin/question/:id     Deleting a question
 router.delete("/question/:id", protect, adminOnly, deleteQuestion);
+
+// POST /api/admin/questions/assign   Assign a question set to a user
+router.post("/questions/assign", protect, adminOnly, assignQuestionSetToUser);
+
+// POST /api/admin/answers         Getting an answer set / all answer sets
+router.post("/answers", protect, adminOnly, getAllAnswerSets);
+
+// POST /api/admin/answer/:id     Modifying an answer
+router.post("/answer/:id", protect, adminOnly, modifyAnswer);
+
+// GET /api/admin/approve/:id     Approving an answerSet
+router.get("/approve/:id", protect, adminOnly, approveAnswerSet);
 
 export default router;

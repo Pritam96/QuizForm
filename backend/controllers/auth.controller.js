@@ -11,8 +11,9 @@ const getSignedJwtToken = (info) => {
   return jwt.sign(info, JWT_SECRET, { expiresIn: JWT_EXPIRE });
 };
 
+// POST /api/auth/register
 export const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -22,7 +23,7 @@ export const register = async (req, res) => {
         .json({ success: false, message: "User already exists." });
     }
 
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password, role });
 
     const token = getSignedJwtToken({ id: user._id });
 
@@ -44,6 +45,7 @@ export const register = async (req, res) => {
   }
 };
 
+// POST /api/auth/login
 export const login = async (req, res) => {
   const { email, password } = req.body;
 

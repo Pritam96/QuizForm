@@ -25,10 +25,12 @@ const QuestionSetSchema = Schema(
       type: String,
     },
     questions: [QuestionSchema],
+    assignedUsers: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   {
     timestamps: true,
   }
 );
 
+export const Question = model("Question", QuestionSchema);
 export const QuestionSet = model("QuestionSet", QuestionSetSchema);
