@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { connectDB } from "./db/config.js";
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
@@ -15,6 +16,9 @@ const port = process.env.PORT || 5000;
 
 // creating express app
 const app = express();
+
+// cors middleware
+app.use(cors());
 
 // json parser middleware
 app.use(express.json());

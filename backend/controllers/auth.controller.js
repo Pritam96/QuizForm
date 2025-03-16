@@ -34,8 +34,8 @@ export const register = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        token,
       },
-      token,
     });
   } catch (error) {
     console.error("Error while registering a user:", error);
@@ -73,8 +73,8 @@ export const login = async (req, res) => {
         name: existingUser.name,
         email: existingUser.email,
         role: existingUser.role,
+        token,
       },
-      token,
     });
   } catch (error) {
     console.error("Error while signing in user:", error);
