@@ -29,7 +29,9 @@ export const createQuestionSet = async (req, res) => {
 // GET /api/admin/questions
 export const getAllQuestionSet = async (req, res) => {
   try {
-    const questionSets = await QuestionSet.find({ adminId: req.user._id });
+    const questionSets = await QuestionSet.find({ adminId: req.user._id }).sort(
+      { updatedAt: -1 }
+    );
     return res.status(200).json({ success: true, questionSets });
   } catch (error) {
     console.error("Error while getting question sets:", error);

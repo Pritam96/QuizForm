@@ -19,7 +19,7 @@ const QuestionProvider = ({ children }) => {
         formData,
         config
       );
-      console.log(data);
+      setQuestionSetList([data.questionSet, ...questionSetList]);
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
@@ -49,11 +49,30 @@ const QuestionProvider = ({ children }) => {
     }
   };
 
+  const userGetAvailableQuestionSet = async (token) => {
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await axios.get(`${baseUrl}/api/user/questions`, config);
+      setQuestionSetList(data.questionSets);
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message ||
+        "Failed fetch question sets. Please try again.";
+      throw new Error(errorMessage);
+    }
+  };
+
   return (
     <QuestionContext.Provider
       value={{
         adminCreateQuestionSet,
         adminGetAllQuestionSet,
+        userGetAvailableQuestionSet,
         questionSetList,
       }}
     >

@@ -6,7 +6,8 @@ export const getAvailableQuestionSets = async (req, res) => {
   try {
     const questionSets = await QuestionSet.find({
       assignedUsers: req.user._id,
-    });
+    }).sort({ updatedAt: -1 });
+
     return res.status(200).json({ success: true, questionSets });
   } catch (error) {
     console.error("Error while getting available question sets:", error);
