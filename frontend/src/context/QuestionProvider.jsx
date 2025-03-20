@@ -1,13 +1,16 @@
 import axios from "axios";
-import React from "react";
+import React, { useState, createContext, useContext } from "react";
 
-const QuestionContext = React.createContext();
+const QuestionContext = createContext();
 
 const QuestionProvider = ({ children }) => {
-  const [questionSetList, setQuestionSetList] = React.useState([]);
+  const [questionSetList, setQuestionSetList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const baseUrl = import.meta.env.VITE_SERVER_URL;
+
   const adminCreateQuestionSet = async (formData, token) => {
     try {
+      setIsLoading(true);
       const config = {
         headers: {
           "Content-type": "application/json",
@@ -19,17 +22,19 @@ const QuestionProvider = ({ children }) => {
         formData,
         config
       );
-      setQuestionSetList([data.questionSet, ...questionSetList]);
+      setQuestionSetList((prev) => [data.questionSet, ...prev]); // ✅ Fixed state update issue
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        "Failed create question set. Please try again.";
-      throw new Error(errorMessage);
+      throw new Error(
+        err.response?.data?.message || "Failed to create question set."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const adminGetAllQuestionSet = async (token) => {
     try {
+      setIsLoading(true);
       const config = {
         headers: {
           "Content-type": "application/json",
@@ -40,17 +45,19 @@ const QuestionProvider = ({ children }) => {
         `${baseUrl}/api/admin/questions`,
         config
       );
-      setQuestionSetList(data.questionSets);
+      setQuestionSetList(data.questionSets || []);
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        "Failed fetch question sets. Please try again.";
-      throw new Error(errorMessage);
+      throw new Error(
+        err.response?.data?.message || "Failed to fetch question sets."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const userGetAvailableQuestionSet = async (token) => {
     try {
+      setIsLoading(true);
       const config = {
         headers: {
           "Content-type": "application/json",
@@ -58,12 +65,36 @@ const QuestionProvider = ({ children }) => {
         },
       };
       const { data } = await axios.get(`${baseUrl}/api/user/questions`, config);
-      setQuestionSetList(data.questionSets);
+      setQuestionSetList(data.questionSets || []);
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        "Failed fetch question sets. Please try again.";
-      throw new Error(errorMessage);
+      throw new Error(
+        err.response?.data?.message || "Failed to fetch question sets."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getQuestionSet = async (questionSetId, token) => {
+    try {
+      setIsLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await axios.get(
+        `${baseUrl}/api/admin/questions/${questionSetId}`,
+        config
+      );
+      return data.questionSet;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.message || "Failed to fetch question set."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -73,7 +104,9 @@ const QuestionProvider = ({ children }) => {
         adminCreateQuestionSet,
         adminGetAllQuestionSet,
         userGetAvailableQuestionSet,
+        getQuestionSet,
         questionSetList,
+        isLoading,
       }}
     >
       {children}
@@ -81,6 +114,6 @@ const QuestionProvider = ({ children }) => {
   );
 };
 
-export const useQuestion = () => React.useContext(QuestionContext);
+export const useQuestion = () => useContext(QuestionContext);
 
 export default QuestionProvider;

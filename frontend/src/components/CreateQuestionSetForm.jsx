@@ -46,7 +46,7 @@ const CreateQuestionSetForm = () => {
   };
 
   return (
-    <Box maxW="md" px={4} py={6} shadow="md" rounded="md">
+    <Box px={4} py={6} shadow="md" rounded="md" w={"50%"}>
       <Text fontSize="2xl" fontWeight="bold" textAlign={"center"} mb={4}>
         Create Question Set
       </Text>

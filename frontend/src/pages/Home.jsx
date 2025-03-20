@@ -15,19 +15,17 @@ const Home = () => {
   } = useQuestion();
 
   useEffect(() => {
-    if (user.role === "admin") {
-      getAllQuestionSet(user.token);
-    } else {
-      userGetAvailableQuestionSet(user.token);
-    }
+    getAllQuestionSet(user.token);
   }, []);
 
   const getAllQuestionSet = async (token) => {
     try {
-      await adminGetAllQuestionSet(token);
+      user.role === "admin"
+        ? await adminGetAllQuestionSet(token)
+        : await userGetAvailableQuestionSet(token);
       toaster.create({
         title: "Success",
-        description: "Question set created successfully!",
+        description: "Question sets fetched successfully!",
         type: "success",
         duration: 3000,
         isClosable: true,
@@ -46,7 +44,9 @@ const Home = () => {
   return (
     <Box h="100vh" w="100vw" p={10}>
       <Toaster />
-      {user.role === "admin" && <CreateQuestionSetForm />}
+      <Box display="flex" justifyContent="center">
+        {user.role === "admin" && <CreateQuestionSetForm />}
+      </Box>
       <Box mt={10}>
         {questionSetList.length && (
           <Stack gap={4}>

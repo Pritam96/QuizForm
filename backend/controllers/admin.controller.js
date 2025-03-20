@@ -41,13 +41,31 @@ export const getAllQuestionSet = async (req, res) => {
   }
 };
 
+// GET /api/admin/questions/:id
+export const getQuestionSet = async (req, res) => {
+  try {
+    const questionSet = await QuestionSet.findById(req.params.id);
+    if (!questionSet) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Question set not found." });
+    }
+    return res.status(200).json({ success: true, questionSet });
+  } catch (error) {
+    console.error("Error while getting a question set:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
+
 // PUT /api/admin/questions/:id
 export const updateQuestionSet = async (req, res) => {
   try {
-    const { title, description, questions } = req.body;
+    const { title, description } = req.body;
     const questionSet = await QuestionSet.findByIdAndUpdate(
       req.params.id,
-      { title, description, questions },
+      { title, description },
       { new: true }
     );
     return res.status(200).json({ success: true, questionSet });

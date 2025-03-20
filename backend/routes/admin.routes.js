@@ -12,6 +12,7 @@ import {
   getAllAnswerSets,
   modifyAnswer,
   approveAnswerSet,
+  getQuestionSet,
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -22,8 +23,11 @@ router.post("/questions", protect, adminOnly, createQuestionSet);
 // GET /api/admin/questions         Getting all question sets
 router.get("/questions", protect, adminOnly, getAllQuestionSet);
 
+// GET /api/admin/questions/:id        Getting a question set by id
+router.get("/questions/:id", protect, adminOnly, getQuestionSet);
+
 // PUT /api/admin/questions/:id     Updating a question set
-router.get("/questions/:id", protect, adminOnly, updateQuestionSet);
+router.put("/questions/:id", protect, adminOnly, updateQuestionSet);
 
 // DELETE /api/admin/questions/:id     Deleting a question set
 router.delete("/questions/:id", protect, adminOnly, deleteQuestionSet);

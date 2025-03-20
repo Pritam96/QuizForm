@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthProvider";
 import EditQuestion from "./components/EditQuestion";
+import CreateQuestionForm from "./components/CreateQuestionForm";
 
 const App = () => {
   const { user } = useAuth();
@@ -22,6 +23,13 @@ const App = () => {
       <Route
         path="/question/:questionSetId/:questionId"
         element={!user ? <Auth /> : <EditQuestion />}
+      />
+
+      {/* add new question to a question set */}
+
+      <Route
+        path="/question/:questionSetId/new"
+        element={!user ? <Auth /> : <CreateQuestionForm />}
       />
 
       <Route path="*" element={<Navigate replace to="/" />} />
