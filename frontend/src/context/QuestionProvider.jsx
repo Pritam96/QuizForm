@@ -22,7 +22,7 @@ const QuestionProvider = ({ children }) => {
         formData,
         config
       );
-      setQuestionSetList((prev) => [data.questionSet, ...prev]); // ✅ Fixed state update issue
+      setQuestionSetList((prev) => [data.questionSet, ...prev]);
     } catch (err) {
       throw new Error(
         err.response?.data?.message || "Failed to create question set."
@@ -76,6 +76,7 @@ const QuestionProvider = ({ children }) => {
   };
 
   const getQuestionSet = async (questionSetId, token) => {
+    console.log("Question Set Fetched!");
     try {
       setIsLoading(true);
       const config = {
@@ -98,12 +99,71 @@ const QuestionProvider = ({ children }) => {
     }
   };
 
+  const adminAddQuestion = async (questionSetId, formData, token) => {
+    try {
+      setIsLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await axios.post(
+        `${baseUrl}/api/admin/question/${questionSetId}`,
+        { question: formData },
+        config
+      );
+      console.log(data);
+      // return data.questionSet;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.message ||
+          "Failed to add a question in a question set."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const adminUpdateQuestion = async (
+    questionSetId,
+    questionId,
+    formData,
+    token
+  ) => {
+    try {
+      setIsLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await axios.put(
+        `${baseUrl}/api/admin/question/${questionSetId}`,
+        { questionId, question: formData },
+        config
+      );
+      console.log(data);
+      // return data.questionSet;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.message ||
+          "Failed to update a question from a question set."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <QuestionContext.Provider
       value={{
         adminCreateQuestionSet,
         adminGetAllQuestionSet,
         userGetAvailableQuestionSet,
+        adminAddQuestion,
+        adminUpdateQuestion,
         getQuestionSet,
         questionSetList,
         isLoading,

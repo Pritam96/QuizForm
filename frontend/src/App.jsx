@@ -21,8 +21,8 @@ const App = () => {
 
       {/* edit a question */}
       <Route
-        path="/question/:questionSetId/:questionId"
-        element={!user ? <Auth /> : <EditQuestion />}
+        path="/question/:questionSetId/:questionId/edit"
+        element={!user ? <Auth /> : <CreateQuestionForm />}
       />
 
       {/* add new question to a question set */}

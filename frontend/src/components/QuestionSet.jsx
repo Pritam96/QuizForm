@@ -27,12 +27,17 @@ const QuestionSet = ({ questionSet }) => {
         {isOpen && (
           <Box>
             <Box p={5}>
-              {questionSet.questions.length ? (
+              {questionSet.questions.length > 0 && (
+                <Text fontSize="xl" fontWeight="bold" mb={4} color="gray.400">
+                  Questions in {questionSet.title}
+                </Text>
+              )}
+              {questionSet.questions && questionSet.questions.length > 0 ? (
                 <Box listStyleType="inside" fontWeight="semibold" px={6}>
                   {questionSet.questions.map((question, index) => (
                     <Box key={question._id} pb={4} _hover={{ color: "blue" }}>
                       <Link
-                        to={`/question/${questionSet._id}/${question._id}`}
+                        to={`/question/${questionSet._id}/${question._id}/edit`}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Box display="flex" alignItems="center">
@@ -40,24 +45,29 @@ const QuestionSet = ({ questionSet }) => {
                           <Text fontSize="lg" ml={2}>
                             {question.questionText}
                           </Text>
+                          <Text fontSize="sm" ml={2} color="gray.500">
+                            ({question.questionType})
+                          </Text>
                         </Box>
-                        {question.questionType === "mcq" ||
-                          (question.questionType === "boolean" && (
+                        {(question.questionType === "mcq" ||
+                          question.questionType === "boolean") &&
+                          question.options &&
+                          question.options.length > 0 && (
                             <Box as="ol" listStyleType="circle" mt={2} ml={8}>
-                              {question.options.map((option) => (
-                                <Box as="li" key={option} my={1}>
+                              {question.options.map((option, optIndex) => (
+                                <Box as="li" key={optIndex} my={1}>
                                   {option}
                                 </Box>
                               ))}
                             </Box>
-                          ))}
+                          )}
                       </Link>
                     </Box>
                   ))}
                 </Box>
               ) : (
                 <Text fontSize={"sm"} textAlign={"center"}>
-                  No questions found. please add questions.
+                  No questions found. Please add some questions.
                 </Text>
               )}
             </Box>
