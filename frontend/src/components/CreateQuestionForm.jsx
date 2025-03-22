@@ -1,17 +1,15 @@
 import {
   Box,
   Button,
-  createListCollection,
   Input,
-  Portal,
-  Select,
+  NativeSelect,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthProvider";
 import { useQuestion } from "../context/QuestionProvider";
-import { Toaster, toaster } from "../components/ui/toaster";
+import { toaster } from "../components/ui/toaster";
 import { Link, useParams } from "react-router-dom";
 
 const CreateQuestionForm = () => {
@@ -22,13 +20,11 @@ const CreateQuestionForm = () => {
     questionText: "",
     options: [],
   });
-
   const [newOption, setNewOption] = useState("");
   const [isEditing, setIsEditing] = useState(!!questionId);
 
   const { user } = useAuth();
   const {
-    adminCreateQuestionSet,
     getQuestionSet,
     questionSetList,
     isLoading,
@@ -39,15 +35,6 @@ const CreateQuestionForm = () => {
   const [questionSet, setQuestionSet] = useState(
     questionSetList?.find((ql) => ql._id === questionSetId) || null
   );
-
-  // Define question types
-  const questionTypes = createListCollection({
-    items: [
-      { label: "Normal", value: "text" },
-      { label: "MCQ Questions", value: "mcq" },
-      { label: "Yes / No", value: "boolean" },
-    ],
-  });
 
   // Fetch question set if not available
   useEffect(() => {
@@ -62,7 +49,7 @@ const CreateQuestionForm = () => {
       };
       fetchQuestionSet();
     }
-  }, [questionSetId, user.token, questionSet]);
+  }, [questionSetId, user.token, questionSet, getQuestionSet]);
 
   // Populate form data when editing a question
   useEffect(() => {
@@ -83,15 +70,6 @@ const CreateQuestionForm = () => {
   const changeHandler = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-  };
-
-  const handleQuestionTypeChange = (value) => {
-    setFormData({
-      ...formData,
-      questionType: value,
-      // Clear options if changing to text type
-      options: value === "text" ? [] : formData.options,
-    });
   };
 
   const addOption = () => {
@@ -124,8 +102,6 @@ const CreateQuestionForm = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    console.log(formData);
-
     // Form validation
     if (!formData.questionText.trim()) {
       toaster.create({
@@ -139,11 +115,7 @@ const CreateQuestionForm = () => {
     }
 
     // If question type requires options, validate them
-    if (
-      (formData.questionType === "mcq" ||
-        formData.questionType === "boolean") &&
-      formData.options.length < 2
-    ) {
+    if (formData.questionType === "mcq" && formData.options.length < 2) {
       toaster.create({
         title: "Error",
         description: "At least two options are required for this question type",
@@ -216,43 +188,31 @@ const CreateQuestionForm = () => {
                 onChange={changeHandler}
               />
 
-              {/* Question Type Select */}
-              <Select.Root
-                collection={questionTypes}
-                value={formData.questionType}
-                onValueChange={(e) => handleQuestionTypeChange(e.value)}
-              >
-                <Select.HiddenSelect />
-                <Select.Control>
-                  <Select.Trigger>
-                    <Select.ValueText placeholder="Select Question Type" />
-                  </Select.Trigger>
-                  <Select.IndicatorGroup>
-                    <Select.Indicator />
-                  </Select.IndicatorGroup>
-                </Select.Control>
-                <Portal>
-                  <Select.Positioner>
-                    <Select.Content>
-                      {questionTypes.items.map((type) => (
-                        <Select.Item item={type} key={type.value}>
-                          {type.label}
-                          <Select.ItemIndicator />
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Positioner>
-                </Portal>
-              </Select.Root>
+              {/* Native Select for Question Type */}
+              <NativeSelect.Root size="sm">
+                <NativeSelect.Field
+                  placeholder="Select question type"
+                  value={formData.questionType}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      questionType: e.currentTarget.value,
+                    })
+                  }
+                >
+                  <option value="text">Normal question</option>
+                  <option value="mcq">MCQ question</option>
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
 
               {/* Option inputs for MCQ and Boolean type questions */}
-              {(formData.questionType === "mcq" ||
-                formData.questionType === "boolean") && (
+              {formData.questionType === "mcq" && (
                 <>
                   {/* Display existing options */}
                   {formData.options.map((option, index) => (
                     <Box key={index} display="flex" gap={2}>
-                      <Input value={option} isReadOnly />
+                      <Input value={option} onChange={() => {}} />
                       <Button
                         colorScheme="red"
                         onClick={() => removeOption(index)}
@@ -294,7 +254,7 @@ const CreateQuestionForm = () => {
       {!isLoading && questionSet && (
         <Box mt={10}>
           <Box p={5}>
-            {questionSet.questions.length > 0 && (
+            {questionSet.questions && questionSet.questions.length > 0 && (
               <Text fontSize="xl" fontWeight="bold" mb={4} color="gray.400">
                 Questions in {questionSet.title}
               </Text>
@@ -316,8 +276,7 @@ const CreateQuestionForm = () => {
                           ({question.questionType})
                         </Text>
                       </Box>
-                      {(question.questionType === "mcq" ||
-                        question.questionType === "boolean") &&
+                      {question.questionType === "mcq" &&
                         question.options &&
                         question.options.length > 0 && (
                           <Box as="ol" listStyleType="circle" mt={2} ml={8}>

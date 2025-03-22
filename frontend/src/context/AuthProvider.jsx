@@ -26,7 +26,7 @@ const AuthProvider = ({ children }) => {
           logoutAction();
         }
       }
-      setIsLoading(false); // Set loading to false after checking auth
+      setIsLoading(false);
     };
 
     checkAuth();
@@ -79,7 +79,7 @@ const AuthProvider = ({ children }) => {
         user,
         setUser,
         isAuthenticated,
-        isLoading, // Expose loading state
+        isLoading,
         loginAction,
         registerAction,
         logoutAction,
