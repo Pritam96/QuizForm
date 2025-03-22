@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -6,21 +6,30 @@ import { jwtDecode } from "jwt-decode";
 const AuthContext = React.createContext();
 
 const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [user, setUser] = React.useState(
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("profile")) || null
   );
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_SERVER_URL;
 
   useEffect(() => {
-    if (user && user.token) {
-      const decodedToken = jwtDecode(user.token);
-      if (decodedToken.exp * 1000 < Date.now()) {
-        logoutAction();
+    const checkAuth = () => {
+      const profile = JSON.parse(localStorage.getItem("profile"));
+      if (profile && profile.token) {
+        const decodedToken = jwtDecode(profile.token);
+        if (decodedToken.exp * 1000 > Date.now()) {
+          setUser(profile);
+          setIsAuthenticated(true);
+        } else {
+          logoutAction();
+        }
       }
-    }
-    setUser(JSON.parse(localStorage.getItem("profile")));
+      setIsLoading(false); // Set loading to false after checking auth
+    };
+
+    checkAuth();
   }, [navigate]);
 
   // Login existing user
@@ -70,6 +79,7 @@ const AuthProvider = ({ children }) => {
         user,
         setUser,
         isAuthenticated,
+        isLoading, // Expose loading state
         loginAction,
         registerAction,
         logoutAction,

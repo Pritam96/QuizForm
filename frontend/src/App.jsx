@@ -3,11 +3,16 @@ import Auth from "./components/Auth";
 import Home from "./pages/Home";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthProvider";
-import EditQuestion from "./components/EditQuestion";
 import CreateQuestionForm from "./components/CreateQuestionForm";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 const App = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <Routes>
       <Route
@@ -19,13 +24,13 @@ const App = () => {
         element={!isAuthenticated ? <Auth /> : <Navigate replace to="/" />}
       />
 
-      {/* edit a question */}
+      {/* Edit a question */}
       <Route
         path="/question/:questionSetId/:questionId/edit"
         element={!isAuthenticated ? <Auth /> : <CreateQuestionForm />}
       />
 
-      {/* add new question to a question set */}
+      {/* Add new question to a question set */}
       <Route
         path="/question/:questionSetId/new"
         element={!isAuthenticated ? <Auth /> : <CreateQuestionForm />}
