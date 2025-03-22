@@ -7,29 +7,28 @@ import EditQuestion from "./components/EditQuestion";
 import CreateQuestionForm from "./components/CreateQuestionForm";
 
 const App = () => {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
   return (
     <Routes>
       <Route
         path="/"
-        element={user ? <Home /> : <Navigate replace to="/auth" />}
+        element={isAuthenticated ? <Home /> : <Navigate replace to="/auth" />}
       />
       <Route
         path="/auth"
-        element={!user ? <Auth /> : <Navigate replace to="/" />}
+        element={!isAuthenticated ? <Auth /> : <Navigate replace to="/" />}
       />
 
       {/* edit a question */}
       <Route
         path="/question/:questionSetId/:questionId/edit"
-        element={!user ? <Auth /> : <CreateQuestionForm />}
+        element={!isAuthenticated ? <Auth /> : <CreateQuestionForm />}
       />
 
       {/* add new question to a question set */}
-
       <Route
         path="/question/:questionSetId/new"
-        element={!user ? <Auth /> : <CreateQuestionForm />}
+        element={!isAuthenticated ? <Auth /> : <CreateQuestionForm />}
       />
 
       <Route path="*" element={<Navigate replace to="/" />} />
