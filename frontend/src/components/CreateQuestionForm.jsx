@@ -10,7 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthProvider";
 import { useQuestion } from "../context/QuestionProvider";
 import { toaster } from "../components/ui/toaster";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 const CreateQuestionForm = () => {
   let { questionSetId, questionId } = useParams();
@@ -35,6 +35,7 @@ const CreateQuestionForm = () => {
   const [questionSet, setQuestionSet] = useState(
     questionSetList?.find((ql) => ql._id === questionSetId) || null
   );
+  const navigate = useNavigate();
 
   // Fetch question set if not available
   useEffect(() => {
@@ -97,6 +98,7 @@ const CreateQuestionForm = () => {
     });
     setNewOption("");
     setIsEditing(false);
+    navigate(`/question/${questionSetId}/new`);
   };
 
   const submitHandler = async (e) => {
@@ -189,7 +191,7 @@ const CreateQuestionForm = () => {
               />
 
               {/* Native Select for Question Type */}
-              <NativeSelect.Root size="sm">
+              <NativeSelect.Root size="md">
                 <NativeSelect.Field
                   placeholder="Select question type"
                   value={formData.questionType}
@@ -206,15 +208,20 @@ const CreateQuestionForm = () => {
                 <NativeSelect.Indicator />
               </NativeSelect.Root>
 
-              {/* Option inputs for MCQ and Boolean type questions */}
+              {/* Option inputs for MCQ type questions */}
               {formData.questionType === "mcq" && (
                 <>
                   {/* Display existing options */}
                   {formData.options.map((option, index) => (
                     <Box key={index} display="flex" gap={2}>
-                      <Input value={option} onChange={() => {}} />
+                      <Input
+                        value={option}
+                        onChange={() => {}}
+                        readOnly
+                        size="sm"
+                      />
                       <Button
-                        colorScheme="red"
+                        colorPalette="red"
                         onClick={() => removeOption(index)}
                       >
                         Remove
@@ -230,18 +237,19 @@ const CreateQuestionForm = () => {
                       }`}
                       value={newOption}
                       onChange={(e) => setNewOption(e.target.value)}
+                      size="sm"
                     />
                     <Button onClick={addOption}>Add Option</Button>
                   </Box>
                 </>
               )}
 
-              <Button type="submit" colorScheme="blue">
+              <Button type="submit" colorPalette="blue">
                 {isEditing ? "Update Question" : "Create Question"}
               </Button>
 
               {isEditing && (
-                <Button colorScheme="gray" onClick={resetForm}>
+                <Button colorPalette="gray" onClick={resetForm}>
                   Cancel Edit
                 </Button>
               )}
