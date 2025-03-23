@@ -1,17 +1,56 @@
 import { Box, Button, Card, Text } from "@chakra-ui/react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import CreateQuestionForm from "./CreateQuestionForm";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toaster } from "../components/ui/toaster";
+import Question from "./Question";
+import { useAuth } from "../context/AuthProvider";
+import { useAnswer } from "../context/AnswerProvider";
 
 const QuestionSet = ({ questionSet }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [answerSet, setAnswerSet] = useState(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const { submitAnswerSet, isLoading, answerSetList } = useAnswer();
+
+  const addQuestionOrSubmitAnswerSet = async () => {
+    if (user.role === "admin") navigate(`/question/${questionSet._id}/new`);
+    else {
+      try {
+        await submitAnswerSet(answerSet._id, user.token);
+        toaster.create({
+          title: "Success",
+          description: "Answer Set submitted successfully!",
+          type: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } catch (error) {
+        toaster.create({
+          title: "Error",
+          description: error.message,
+          type: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoading && questionSet) {
+      const answerSet = answerSetList.find(
+        (answerSet) => answerSet.questionSetId._id === questionSet._id
+      );
+      setAnswerSet(answerSet);
+    }
+  }, [isLoading, questionSet, answerSetList]);
 
   return (
     <Card.Root
-      onClick={(e) => {
-        setIsOpen(!isOpen);
-        e.stopPropagation();
+      onClick={() => {
+        setIsOpen(true);
       }}
     >
       <Card.Body>
@@ -35,34 +74,12 @@ const QuestionSet = ({ questionSet }) => {
               {questionSet.questions && questionSet.questions.length > 0 ? (
                 <Box listStyleType="inside" fontWeight="semibold" px={6}>
                   {questionSet.questions.map((question, index) => (
-                    <Box key={question._id} pb={4} _hover={{ color: "blue" }}>
-                      <Link
-                        to={`/question/${questionSet._id}/${question._id}/edit`}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Box display="flex" alignItems="center">
-                          <Text fontSize="xl">{index + 1}.</Text>
-                          <Text fontSize="lg" ml={2}>
-                            {question.questionText}
-                          </Text>
-                          <Text fontSize="sm" ml={2} color="gray.500">
-                            ({question.questionType})
-                          </Text>
-                        </Box>
-                        {(question.questionType === "mcq" ||
-                          question.questionType === "boolean") &&
-                          question.options &&
-                          question.options.length > 0 && (
-                            <Box as="ol" listStyleType="circle" mt={2} ml={8}>
-                              {question.options.map((option, optIndex) => (
-                                <Box as="li" key={optIndex} my={1}>
-                                  {option}
-                                </Box>
-                              ))}
-                            </Box>
-                          )}
-                      </Link>
-                    </Box>
+                    <Question
+                      key={index}
+                      questionSet={questionSet}
+                      question={question}
+                      index={index}
+                    />
                   ))}
                 </Box>
               ) : (
@@ -72,9 +89,22 @@ const QuestionSet = ({ questionSet }) => {
               )}
             </Box>
             <Box textAlign={"right"}>
-              <Link to={`/question/${questionSet._id}/new`}>
-                Add a question
-              </Link>
+              <Button
+                variant="outline"
+                colorPalette={"red"}
+                onClick={addQuestionOrSubmitAnswerSet}
+                disabled={
+                  user.role === "user" && answerSet?.status === "Modified"
+                }
+              >
+                {user.role === "admin" && "Add a question"}
+                {user.role === "user" &&
+                  answerSet?.status === "Pending" &&
+                  "Submit your paper"}
+                {user.role === "user" &&
+                  answerSet?.status === "Modified" &&
+                  "Paper is submitted"}
+              </Button>
             </Box>
           </Box>
         )}

@@ -5,6 +5,7 @@ import { Toaster, toaster } from "../components/ui/toaster";
 import { Box, Stack, Text } from "@chakra-ui/react";
 import QuestionSet from "../components/QuestionSet";
 import CreateQuestionSetForm from "../components/CreateQuestionSetForm";
+import { useAnswer } from "../context/AnswerProvider";
 
 const Home = () => {
   const { user } = useAuth();
@@ -12,10 +13,18 @@ const Home = () => {
     adminGetAllQuestionSet,
     userGetAvailableQuestionSet,
     questionSetList,
+    isLoading: questionSetListLoading,
   } = useQuestion();
+
+  const {
+    userGetAnswerSetList,
+    answerSetList,
+    isLoading: answerSetListLoading,
+  } = useAnswer();
 
   useEffect(() => {
     getAllQuestionSet(user.token);
+    if (user.role === "user") userGetAnswerSetList(user.token);
   }, []);
 
   const getAllQuestionSet = async (token) => {
@@ -48,7 +57,7 @@ const Home = () => {
         {user.role === "admin" && <CreateQuestionSetForm />}
       </Box>
       <Box mt={10}>
-        {questionSetList.length && (
+        {!questionSetListLoading && questionSetList.length && (
           <Stack gap={4}>
             {questionSetList.map((questionSet) => (
               <QuestionSet key={questionSet._id} questionSet={questionSet} />

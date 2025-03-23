@@ -311,7 +311,7 @@ export const getAllAnswerSets = async (req, res) => {
   }
 };
 
-// POST /api/admin/answer/:id
+// POST /api/admin/answer/:id - AnswerSet id is required
 export const modifyAnswer = async (req, res) => {
   try {
     const { answerId, answer } = req.body;

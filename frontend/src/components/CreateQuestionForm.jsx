@@ -143,6 +143,7 @@ const CreateQuestionForm = () => {
           duration: 3000,
           isClosable: true,
         });
+        resetForm();
       } else {
         await adminAddQuestion(questionSetId, formData, user.token);
         toaster.create({

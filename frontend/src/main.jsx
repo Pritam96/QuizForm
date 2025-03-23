@@ -6,6 +6,7 @@ import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import AuthProvider from "./context/AuthProvider.jsx";
 import { BrowserRouter } from "react-router-dom";
 import QuestionProvider from "./context/QuestionProvider.jsx";
+import AnswerProvider from "./context/AnswerProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -13,7 +14,9 @@ createRoot(document.getElementById("root")).render(
       <BrowserRouter>
         <AuthProvider>
           <QuestionProvider>
-            <App />
+            <AnswerProvider>
+              <App />
+            </AnswerProvider>
           </QuestionProvider>
         </AuthProvider>
       </BrowserRouter>

@@ -161,9 +161,7 @@ export const getAllAnswerSets = async (req, res) => {
 
     const answerSets = await AnswerSet.find({
       questionSetId: { $in: questionSetIds },
-      status: "Modified",
     })
-      .select("-__v -answers")
       .populate("questionSetId", "title description")
       .populate("userId", "name email");
 
