@@ -5,6 +5,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthProvider";
 import CreateQuestionForm from "./components/CreateQuestionForm";
 import LoadingSpinner from "./components/LoadingSpinner";
+import Layout from "./components/Layout";
+import SubmittedAnswerSetList from "./pages/SubmittedAnswerSetList";
 
 const App = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -14,30 +16,38 @@ const App = () => {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={isAuthenticated ? <Home /> : <Navigate replace to="/auth" />}
-      />
-      <Route
-        path="/auth"
-        element={!isAuthenticated ? <Auth /> : <Navigate replace to="/" />}
-      />
+    <Layout>
+      <Routes>
+        <Route
+          path="/"
+          element={isAuthenticated ? <Home /> : <Navigate replace to="/auth" />}
+        />
+        <Route
+          path="/auth"
+          element={!isAuthenticated ? <Auth /> : <Navigate replace to="/" />}
+        />
 
-      {/* Edit a question */}
-      <Route
-        path="/question/:questionSetId/:questionId/edit"
-        element={!isAuthenticated ? <Auth /> : <CreateQuestionForm />}
-      />
+        {/* Edit a question */}
+        <Route
+          path="/question/:questionSetId/:questionId/edit"
+          element={!isAuthenticated ? <Auth /> : <CreateQuestionForm />}
+        />
 
-      {/* Add new question to a question set */}
-      <Route
-        path="/question/:questionSetId/new"
-        element={!isAuthenticated ? <Auth /> : <CreateQuestionForm />}
-      />
+        {/* Add new question to a question set */}
+        <Route
+          path="/question/:questionSetId/new"
+          element={!isAuthenticated ? <Auth /> : <CreateQuestionForm />}
+        />
 
-      <Route path="*" element={<Navigate replace to="/" />} />
-    </Routes>
+        {/* Add new question to a question set */}
+        <Route
+          path="/answers"
+          element={!isAuthenticated ? <Auth /> : <SubmittedAnswerSetList />}
+        />
+
+        <Route path="*" element={<Navigate replace to="/" />} />
+      </Routes>
+    </Layout>
   );
 };
 

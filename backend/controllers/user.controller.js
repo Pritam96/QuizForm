@@ -129,40 +129,11 @@ export const submitAnswerSet = async (req, res) => {
 
 // POST /api/user/answers
 export const getAllAnswerSets = async (req, res) => {
-  const { answerSetId } = req.body;
   try {
-    // if answerSetId is provided, return the answer set
-    if (answerSetId) {
-      const answerSet = await AnswerSet.findById(answerSetId)
-        .populate("questionSetId", "title description questions")
-        .populate("userId", "name email");
-
-      if (!answerSet) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Answer set not found." });
-      }
-
-      return res.status(200).json({ success: true, answerSet });
-    }
-
-    // if answerSetId is not provided, return all answer sets
-    const questionSets = await QuestionSet.find({
-      assignedUsers: req.user._id,
-    });
-
-    if (!questionSets.length) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No question sets found." });
-    }
-
-    const questionSetIds = questionSets.map((qs) => qs._id);
-
     const answerSets = await AnswerSet.find({
-      questionSetId: { $in: questionSetIds },
+      userId: req.user._id,
     })
-      .populate("questionSetId", "title description")
+      .populate("questionSetId")
       .populate("userId", "name email");
 
     return res.status(200).json({ success: true, answerSets });

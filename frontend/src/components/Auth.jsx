@@ -7,7 +7,7 @@ import {
   Switch,
   Text,
 } from "@chakra-ui/react";
-import { Toaster, toaster } from "../components/ui/toaster";
+import { toaster } from "../components/ui/toaster";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthProvider";
 
@@ -89,7 +89,6 @@ const Auth = () => {
       px={6}
       py={10}
     >
-      <Toaster />
       <Stack gap={4}>
         <Box fontSize="2xl" fontWeight="bold" textAlign="center">
           {isSignUp ? "Sign Up" : "Sign In"}

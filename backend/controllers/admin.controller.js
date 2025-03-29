@@ -298,8 +298,7 @@ export const getAllAnswerSets = async (req, res) => {
       questionSetId: { $in: questionSetIds },
       status: "Modified",
     })
-      .select("-__v -answers")
-      .populate("questionSetId", "title description")
+      .populate("questionSetId")
       .populate("userId", "name email");
 
     return res.status(200).json({ success: true, answerSets });

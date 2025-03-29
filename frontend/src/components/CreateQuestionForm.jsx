@@ -175,7 +175,7 @@ const CreateQuestionForm = () => {
   };
 
   return (
-    <Box h="100vh" w="100vw" p={10}>
+    <Box p={10}>
       <Box display="flex" justifyContent="center">
         <Box px={4} py={6} shadow="md" rounded="md" w={"50%"}>
           <Text fontSize="2xl" fontWeight="bold" textAlign={"center"} mb={4}>

@@ -5,12 +5,14 @@ import { useAuth } from "../context/AuthProvider";
 import { toaster } from "../components/ui/toaster";
 import { useAnswer } from "../context/AnswerProvider";
 
-const Question = ({ questionSet, question, index }) => {
+const Question = ({ questionSet, question, index, submittedAnswerText }) => {
   const { user } = useAuth();
   const [answerText, setAnswerText] = React.useState("");
   const [answer, setAnswer] = React.useState(null);
   const navigate = useNavigate();
   const { isLoading, submitAnswer, answerSetList } = useAnswer();
+
+  console.log("SUBMITTED ANSWER", submittedAnswerText);
 
   useEffect(() => {
     if (user.role === "user" && !isLoading && questionSet && question) {
@@ -29,16 +31,29 @@ const Question = ({ questionSet, question, index }) => {
         }
       }
     }
+
+    // to view user submitted answer for admin
+    if (user.role === "admin" && !isLoading && submittedAnswerText) {
+      setAnswerText(submittedAnswerText);
+    }
   }, [isLoading, questionSet, question, answerSetList]);
 
   const submitHandler = async () => {
     try {
-      await submitAnswer(
-        questionSet._id,
-        question._id,
-        answerText.trim(),
-        user.token
-      );
+      user.role === "user"
+        ? await submitAnswer(
+            questionSet._id,
+            question._id,
+            answerText.trim(),
+            user.token
+          )
+        : // change to update answer for admin
+          await submitAnswer(
+            questionSet._id,
+            question._id,
+            answerText.trim(),
+            user.token
+          );
       toaster.create({
         title: "Success",
         description: "Answer submitted successfully!",
@@ -58,7 +73,7 @@ const Question = ({ questionSet, question, index }) => {
   };
 
   const clickHandlerQuestionEdit = () => {
-    if (user.role === "admin") {
+    if (user.role === "admin" && !submittedAnswerText) {
       navigate(`/question/${questionSet._id}/${question._id}/edit`);
     }
   };
@@ -67,7 +82,9 @@ const Question = ({ questionSet, question, index }) => {
     <Box
       key={question._id}
       pb={4}
-      _hover={{ color: user.role === "admin" && "blue" }}
+      _hover={{
+        color: user.role === "admin" && !submittedAnswerText && "blue",
+      }}
       onClick={clickHandlerQuestionEdit}
     >
       <Box display="flex" alignItems="center">
@@ -117,25 +134,33 @@ const Question = ({ questionSet, question, index }) => {
             )}
           </Box>
         )}
-      {user.role === "user" && question.questionType === "text" && (
-        <Box display={"flex"} mt={2} gap={2} justifyContent={"space-between"}>
-          <Input
-            placeholder="Enter your answer"
-            value={answerText}
-            name={question._id}
-            onChange={(e) => setAnswerText(e.target.value)}
-            disabled={answer !== null}
-          />
-          <Button
-            variant="outline"
-            colorPalette={"green"}
-            onClick={submitHandler}
-            disabled={answer !== null}
-          >
-            {answer !== null ? "Submitted" : "Submit"}
-          </Button>
-        </Box>
-      )}
+      {user.role === "user" ||
+        (user.role === "admin" &&
+          submittedAnswerText &&
+          question.questionType === "text" && (
+            <Box
+              display={"flex"}
+              mt={2}
+              gap={2}
+              justifyContent={"space-between"}
+            >
+              <Input
+                placeholder="Enter your answer"
+                value={answerText}
+                name={question._id}
+                onChange={(e) => setAnswerText(e.target.value)}
+                disabled={answer !== null}
+              />
+              <Button
+                variant="outline"
+                colorPalette={"green"}
+                onClick={submitHandler}
+                disabled={answer !== null}
+              >
+                {answer !== null ? "Submitted" : "Submit"}
+              </Button>
+            </Box>
+          ))}
     </Box>
   );
 };

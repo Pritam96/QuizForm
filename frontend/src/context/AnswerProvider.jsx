@@ -81,6 +81,30 @@ const AnswerProvider = ({ children }) => {
     }
   };
 
+  const adminGetAnswerSetList = async (token) => {
+    try {
+      setIsLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await axios.post(
+        `${baseUrl}/api/admin/answers`,
+        {},
+        config
+      );
+      setAnswerSetList(data.answerSets || []);
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.message || "Failed to fetch answer sets."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const adminUpdateAnswer = async (answerSetId, answerId, answer, token) => {
     try {
       setIsLoading(true);
@@ -112,6 +136,7 @@ const AnswerProvider = ({ children }) => {
         submitAnswerSet,
         userGetAnswerSetList,
         adminUpdateAnswer,
+        adminGetAnswerSetList,
         answerSetList,
         isLoading,
       }}

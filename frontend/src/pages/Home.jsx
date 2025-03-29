@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../context/AuthProvider";
 import { useQuestion } from "../context/QuestionProvider";
-import { Toaster, toaster } from "../components/ui/toaster";
+import { toaster } from "../components/ui/toaster";
 import { Box, Stack, Text } from "@chakra-ui/react";
 import QuestionSet from "../components/QuestionSet";
 import CreateQuestionSetForm from "../components/CreateQuestionSetForm";
@@ -16,15 +16,8 @@ const Home = () => {
     isLoading: questionSetListLoading,
   } = useQuestion();
 
-  const {
-    userGetAnswerSetList,
-    answerSetList,
-    isLoading: answerSetListLoading,
-  } = useAnswer();
-
   useEffect(() => {
     getAllQuestionSet(user.token);
-    if (user.role === "user") userGetAnswerSetList(user.token);
   }, []);
 
   const getAllQuestionSet = async (token) => {
@@ -51,8 +44,7 @@ const Home = () => {
   };
 
   return (
-    <Box h="100vh" w="100vw" p={10}>
-      <Toaster />
+    <Box p={10}>
       <Box display="flex" justifyContent="center">
         {user.role === "admin" && <CreateQuestionSetForm />}
       </Box>

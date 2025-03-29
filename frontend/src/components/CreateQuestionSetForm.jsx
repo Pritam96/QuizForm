@@ -2,7 +2,7 @@ import { Box, Button, Input, Stack, Text } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthProvider";
 import { useQuestion } from "../context/QuestionProvider";
-import { Toaster, toaster } from "../components/ui/toaster";
+import { toaster } from "../components/ui/toaster";
 
 const CreateQuestionSetForm = () => {
   const [formData, setFormData] = useState({
