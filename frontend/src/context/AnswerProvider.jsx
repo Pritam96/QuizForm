@@ -23,7 +23,14 @@ const AnswerProvider = ({ children }) => {
         config
       );
       console.log(data);
-      // return data.questionSet;
+
+      setAnswerSetList((prevAnswerSetList) =>
+        prevAnswerSetList.map((answerSet) =>
+          answerSet._id === data.answerSet._id
+            ? { ...answerSet, answers: data.answerSet.answers }
+            : answerSet
+        )
+      );
     } catch (err) {
       throw new Error(
         err.response?.data?.message || "Failed to submit the answer."
@@ -47,6 +54,17 @@ const AnswerProvider = ({ children }) => {
         config
       );
       console.log(data);
+      setAnswerSetList((prevAnswerSetList) =>
+        prevAnswerSetList.map((answerSet) =>
+          answerSet._id === answerSetId
+            ? {
+                ...answerSet,
+                status: data.answerSet.status,
+                answers: data.answerSet.answers,
+              }
+            : answerSet
+        )
+      );
     } catch (err) {
       throw new Error(
         err.response?.data?.message || "Failed to submit the answer set."
@@ -119,10 +137,47 @@ const AnswerProvider = ({ children }) => {
         { answerId, answer },
         config
       );
-      console.log(data);
+
+      setAnswerSetList((prevAnswerSetList) =>
+        prevAnswerSetList.map((answerSet) =>
+          answerSet._id === answerSetId
+            ? { ...answerSet, answers: data.answerSet.answers }
+            : answerSet
+        )
+      );
     } catch (err) {
       throw new Error(
-        err.response?.data?.message || "Failed to submit the answer."
+        err.response?.data?.message || "Failed to update the answer."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const adminApproveAnswerSet = async (answerSetId, token) => {
+    try {
+      setIsLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await axios.get(
+        `${baseUrl}/api/admin/approve/${answerSetId}`,
+        config
+      );
+
+      setAnswerSetList((prevAnswerSetList) =>
+        prevAnswerSetList.map((answerSet) =>
+          answerSet._id === answerSetId
+            ? { ...answerSet, status: data.answerSet.status }
+            : answerSet
+        )
+      );
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.message || "Failed to approve the answer set."
       );
     } finally {
       setIsLoading(false);
@@ -137,6 +192,7 @@ const AnswerProvider = ({ children }) => {
         userGetAnswerSetList,
         adminUpdateAnswer,
         adminGetAnswerSetList,
+        adminApproveAnswerSet,
         answerSetList,
         isLoading,
       }}

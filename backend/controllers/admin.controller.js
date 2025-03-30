@@ -296,7 +296,7 @@ export const getAllAnswerSets = async (req, res) => {
 
     const answerSets = await AnswerSet.find({
       questionSetId: { $in: questionSetIds },
-      status: "Modified",
+      status: { $in: ["Modified", "Approved"] },
     })
       .populate("questionSetId")
       .populate("userId", "name email");
@@ -341,6 +341,7 @@ export const modifyAnswer = async (req, res) => {
     }
 
     existingAnswer.answerText = answer;
+    existingAnswer.status = "Reviewed";
     answerSet.modifiedByAdmin = true;
     await answerSet.save();
 
@@ -367,6 +368,7 @@ export const approveAnswerSet = async (req, res) => {
         .json({ success: false, message: "Answer set not found." });
     }
 
+    answerSet.answers.map((answer) => (answer.status = "Reviewed"));
     answerSet.status = "Approved";
     await answerSet.save();
 

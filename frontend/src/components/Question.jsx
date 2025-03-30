@@ -5,21 +5,21 @@ import { useAuth } from "../context/AuthProvider";
 import { toaster } from "../components/ui/toaster";
 import { useAnswer } from "../context/AnswerProvider";
 
-const Question = ({ questionSet, question, index, submittedAnswerText }) => {
+const Question = ({ questionSet, question, index }) => {
   const { user } = useAuth();
   const [answerText, setAnswerText] = React.useState("");
+  const [selectedAnswerSet, setSelectedAnswerSet] = React.useState(null);
   const [answer, setAnswer] = React.useState(null);
   const navigate = useNavigate();
-  const { isLoading, submitAnswer, answerSetList } = useAnswer();
-
-  console.log("SUBMITTED ANSWER", submittedAnswerText);
+  const { isLoading, submitAnswer, answerSetList, adminUpdateAnswer } =
+    useAnswer();
 
   useEffect(() => {
-    if (user.role === "user" && !isLoading && questionSet && question) {
+    if (!isLoading && questionSet && question) {
       const answerSet = answerSetList.find(
         (answerSet) => answerSet.questionSetId._id === questionSet._id
       );
-
+      setSelectedAnswerSet(answerSet);
       if (answerSet) {
         const specificAnswer = answerSet.answers.find(
           (item) => String(item.questionId) === String(question._id)
@@ -31,29 +31,17 @@ const Question = ({ questionSet, question, index, submittedAnswerText }) => {
         }
       }
     }
-
-    // to view user submitted answer for admin
-    if (user.role === "admin" && !isLoading && submittedAnswerText) {
-      setAnswerText(submittedAnswerText);
-    }
   }, [isLoading, questionSet, question, answerSetList]);
 
   const submitHandler = async () => {
+    if (!questionSet || !question) return;
     try {
-      user.role === "user"
-        ? await submitAnswer(
-            questionSet._id,
-            question._id,
-            answerText.trim(),
-            user.token
-          )
-        : // change to update answer for admin
-          await submitAnswer(
-            questionSet._id,
-            question._id,
-            answerText.trim(),
-            user.token
-          );
+      await submitAnswer(
+        questionSet._id,
+        question._id,
+        answerText.trim(),
+        user.token
+      );
       toaster.create({
         title: "Success",
         description: "Answer submitted successfully!",
@@ -72,10 +60,43 @@ const Question = ({ questionSet, question, index, submittedAnswerText }) => {
     }
   };
 
+  const updateHandler = async () => {
+    if (!selectedAnswerSet || !answer) return;
+    try {
+      await adminUpdateAnswer(
+        selectedAnswerSet._id,
+        answer._id,
+        answerText.trim(),
+        user.token
+      );
+      toaster.create({
+        title: "Success",
+        description: "Answer updated successfully!",
+        type: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toaster.create({
+        title: "Error",
+        description: error.message,
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   const clickHandlerQuestionEdit = () => {
-    if (user.role === "admin" && !submittedAnswerText) {
+    if (user.role === "admin" && answer === null) {
       navigate(`/question/${questionSet._id}/${question._id}/edit`);
     }
+  };
+
+  const changeHandler = (e) => {
+    const inputtedText =
+      e.target?.name === "textInput" ? e.target?.value : e?.value;
+    setAnswerText(inputtedText);
   };
 
   return (
@@ -83,7 +104,7 @@ const Question = ({ questionSet, question, index, submittedAnswerText }) => {
       key={question._id}
       pb={4}
       _hover={{
-        color: user.role === "admin" && !submittedAnswerText && "blue",
+        color: user.role === "admin" && answer === null && "blue",
       }}
       onClick={clickHandlerQuestionEdit}
     >
@@ -109,8 +130,12 @@ const Question = ({ questionSet, question, index, submittedAnswerText }) => {
           >
             <RadioGroup.Root
               value={answerText}
-              onValueChange={(e) => setAnswerText(e.value)}
-              disabled={answer !== null}
+              name="radioInput"
+              onValueChange={changeHandler}
+              disabled={
+                (user.role === "admin" && answer?.status === "Reviewed") ||
+                (user.role === "user" && answer !== null)
+              }
             >
               <Stack gap={3}>
                 {question.options.map((item, itemIndex) => (
@@ -122,7 +147,8 @@ const Question = ({ questionSet, question, index, submittedAnswerText }) => {
                 ))}
               </Stack>
             </RadioGroup.Root>
-            {user.role !== "admin" && (
+
+            {user.role === "user" && (
               <Button
                 variant="outline"
                 colorPalette={"green"}
@@ -132,25 +158,40 @@ const Question = ({ questionSet, question, index, submittedAnswerText }) => {
                 {answer !== null ? "Submitted" : "Submit"}
               </Button>
             )}
+
+            {user.role === "admin" && answer !== null && (
+              <Button
+                variant="outline"
+                colorPalette={"green"}
+                onClick={updateHandler}
+                disabled={
+                  answer?.status === "Reviewed" ||
+                  selectedAnswerSet?.status === "Approved"
+                }
+              >
+                {answer.status !== "Reviewed" ||
+                selectedAnswerSet?.status === "Approved"
+                  ? "Correct"
+                  : "Submitted"}
+              </Button>
+            )}
           </Box>
         )}
-      {user.role === "user" ||
-        (user.role === "admin" &&
-          submittedAnswerText &&
-          question.questionType === "text" && (
-            <Box
-              display={"flex"}
-              mt={2}
-              gap={2}
-              justifyContent={"space-between"}
-            >
-              <Input
-                placeholder="Enter your answer"
-                value={answerText}
-                name={question._id}
-                onChange={(e) => setAnswerText(e.target.value)}
-                disabled={answer !== null}
-              />
+      {(user.role === "user" || (user.role === "admin" && answer !== null)) &&
+        question.questionType === "text" && (
+          <Box display={"flex"} mt={2} gap={2} justifyContent={"space-between"}>
+            <Input
+              placeholder="Enter your answer"
+              value={answerText}
+              name="textInput"
+              onChange={changeHandler}
+              disabled={
+                (user.role === "admin" && answer?.status === "Reviewed") ||
+                (user.role === "user" && answer !== null)
+              }
+            />
+
+            {user.role === "user" && (
               <Button
                 variant="outline"
                 colorPalette={"green"}
@@ -159,8 +200,26 @@ const Question = ({ questionSet, question, index, submittedAnswerText }) => {
               >
                 {answer !== null ? "Submitted" : "Submit"}
               </Button>
-            </Box>
-          ))}
+            )}
+
+            {user.role === "admin" && (
+              <Button
+                variant="outline"
+                colorPalette={"green"}
+                onClick={updateHandler}
+                disabled={
+                  answer?.status === "Reviewed" ||
+                  selectedAnswerSet?.status === "Approved"
+                }
+              >
+                {answer.status !== "Reviewed" ||
+                selectedAnswerSet?.status === "Approved"
+                  ? "Correct"
+                  : "Submitted"}
+              </Button>
+            )}
+          </Box>
+        )}
     </Box>
   );
 };

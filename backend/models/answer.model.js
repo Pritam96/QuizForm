@@ -21,6 +21,11 @@ const AnswerSchema = Schema(
           required: true,
         },
         answerText: { type: String, required: true },
+        status: {
+          type: String,
+          enum: ["Pending", "Reviewed"],
+          default: "Pending",
+        },
       },
     ],
     status: {

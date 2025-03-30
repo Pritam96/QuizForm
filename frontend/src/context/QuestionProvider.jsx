@@ -8,6 +8,8 @@ const QuestionProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const baseUrl = import.meta.env.VITE_SERVER_URL;
 
+  console.log("QUESTION SET LIST:", questionSetList);
+
   const adminCreateQuestionSet = async (formData, token) => {
     try {
       setIsLoading(true);
@@ -113,8 +115,6 @@ const QuestionProvider = ({ children }) => {
         { question: formData },
         config
       );
-      console.log(data);
-      // return data.questionSet;
     } catch (err) {
       throw new Error(
         err.response?.data?.message ||

@@ -2,7 +2,6 @@ import { Box, Button, Card, Stack, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useAnswer } from "../context/AnswerProvider";
 import { useAuth } from "../context/AuthProvider";
-import QuestionSet from "../components/QuestionSet";
 import Question from "../components/Question";
 import { toaster } from "../components/ui/toaster";
 
@@ -12,13 +11,11 @@ const SubmittedAnswerSetList = () => {
   const {
     userGetAnswerSetList,
     answerSetList,
-    isLoading: answerSetListLoading,
+    isLoading,
     adminGetAnswerSetList,
+    adminApproveAnswerSet,
+    submitAnswerSet,
   } = useAnswer();
-
-  const [submittedQuestionSetList, setSubmittedQuestionSetList] = useState();
-
-  console.log(answerSetList);
 
   useEffect(() => {
     const fetchAnswerSet = async () => {
@@ -45,26 +42,41 @@ const SubmittedAnswerSetList = () => {
       }
     };
     fetchAnswerSet();
-  }, []);
+  }, [user.role, user.token]);
+
+  const userOrAdminSubmitAnswerSet = async (answerSetId) => {
+    try {
+      user.role === "admin"
+        ? await adminApproveAnswerSet(answerSetId, user.token)
+        : await submitAnswerSet(answerSetId, user.token);
+      toaster.create({
+        title: "Success",
+        description:
+          user.role === "admin"
+            ? "Answer set approved successfully!"
+            : "Answer set submitted successfully!",
+        type: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err) {
+      console.error("Error approving answer set:", err);
+      toaster.create({
+        title: "Error",
+        description: err.message,
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
     <Box p={10}>
       <Box mt={10}>
-        {!answerSetListLoading && answerSetList?.length > 0 ? (
-          <Stack gap={4}>
-            {answerSetList.map((answerSet) => (
-              <div key={answerSet._id}>
-                <pre>{JSON.stringify(answerSet, null, 2)}</pre>
-              </div>
-            ))}
-          </Stack>
-        ) : (
-          <p>No submitted answer sets found.</p>
-        )}
-      </Box>
-
-      <Box mt={10}>
-        {!answerSetListLoading && answerSetList?.length > 0 ? (
+        {!isLoading && answerSetList?.length > 0 ? (
           <Stack gap={4}>
             {answerSetList.map((answerSet) => (
               <Card.Root key={answerSet._id}>
@@ -73,6 +85,8 @@ const SubmittedAnswerSetList = () => {
                     fontWeight="bold"
                     fontSize="xl"
                     textAlign={"center"}
+                    cursor="pointer"
+                    onClick={toggleOpen}
                   >
                     {answerSet.questionSetId.title}
                   </Card.Title>
@@ -86,16 +100,17 @@ const SubmittedAnswerSetList = () => {
                   {isOpen && (
                     <Box>
                       <Box p={5}>
-                        {answerSet.questionSetId.questions.length > 0 && (
-                          <Text
-                            fontSize="xl"
-                            fontWeight="bold"
-                            mb={4}
-                            color="gray.400"
-                          >
-                            Questions in {answerSet.questionSetId.title}
-                          </Text>
-                        )}
+                        {answerSet.questionSetId.questions &&
+                          answerSet.questionSetId.questions.length > 0 && (
+                            <Text
+                              fontSize="xl"
+                              fontWeight="bold"
+                              mb={4}
+                              color="gray.400"
+                            >
+                              Questions in {answerSet.questionSetId.title}
+                            </Text>
+                          )}
                         {answerSet.questionSetId.questions &&
                         answerSet.questionSetId.questions.length > 0 ? (
                           <Box
@@ -106,17 +121,10 @@ const SubmittedAnswerSetList = () => {
                             {answerSet.questionSetId.questions.map(
                               (question, index) => (
                                 <Question
-                                  key={index}
+                                  key={question._id} // Fixed: Use question._id instead of index
                                   questionSet={answerSet.questionSetId}
                                   question={question}
                                   index={index}
-                                  submittedAnswerText={
-                                    answerSet &&
-                                    answerSet.answers.find(
-                                      (answer) =>
-                                        answer.questionId === question._id
-                                    )?.answerText
-                                  }
                                 />
                               )
                             )}
@@ -128,23 +136,32 @@ const SubmittedAnswerSetList = () => {
                         )}
                       </Box>
                       <Box textAlign={"right"}>
-                        <Button
-                          variant="outline"
-                          colorPalette={"red"}
-                          onClick={() => {}}
-                          disabled={
-                            user.role === "user" &&
-                            answerSet?.status === "Modified"
-                          }
-                        >
-                          {user.role === "admin" && "Add a question"}
-                          {user.role === "user" &&
-                            answerSet?.status === "Pending" &&
-                            "Submit your paper"}
-                          {user.role === "user" &&
-                            answerSet?.status === "Modified" &&
-                            "Paper is submitted"}
-                        </Button>
+                        {user.role === "user" && (
+                          <Button
+                            variant="outline"
+                            colorPalette={"red"}
+                            onClick={() => userOrAdminSubmitAnswerSet(answerSet._id)}
+                            disabled={answerSet?.status !== "Pending"}
+                          >
+                            {answerSet?.status === "Pending" &&
+                              "Submit your paper"}
+                            {answerSet?.status !== "Pending" &&
+                              "Paper is submitted"}
+                          </Button>
+                        )}
+
+                        {user.role === "admin" && (
+                          <Button
+                            variant="outline"
+                            colorPalette={"red"}
+                            onClick={() => userOrAdminSubmitAnswerSet(answerSet._id)}
+                            disabled={answerSet?.status === "Approved"}
+                          >
+                            {answerSet?.status !== "Approved"
+                              ? "Approve"
+                              : "Approved"}
+                          </Button>
+                        )}
                       </Box>
                     </Box>
                   )}
@@ -153,7 +170,10 @@ const SubmittedAnswerSetList = () => {
             ))}
           </Stack>
         ) : (
-          <p>No submitted answer sets found.</p>
+          <Text textAlign="center" fontSize="lg">
+            {" "}
+            No submitted answer sets found.
+          </Text>
         )}
       </Box>
     </Box>

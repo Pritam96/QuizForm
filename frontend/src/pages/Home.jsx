@@ -5,7 +5,6 @@ import { toaster } from "../components/ui/toaster";
 import { Box, Stack, Text } from "@chakra-ui/react";
 import QuestionSet from "../components/QuestionSet";
 import CreateQuestionSetForm from "../components/CreateQuestionSetForm";
-import { useAnswer } from "../context/AnswerProvider";
 
 const Home = () => {
   const { user } = useAuth();

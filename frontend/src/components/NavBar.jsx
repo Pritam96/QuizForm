@@ -1,11 +1,11 @@
 import React from "react";
-import { Box, Stack, Link as ChakraLink, Button } from "@chakra-ui/react";
+import { Box, Stack, Link as ChakraLink, Button, Text } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 import { toaster } from "../components/ui/toaster";
 
 const NavBar = () => {
-  const { isAuthenticated, logoutAction } = useAuth();
+  const { user, isAuthenticated, logoutAction } = useAuth();
 
   const logoutHandler = () => {
     logoutAction();
@@ -42,7 +42,16 @@ const NavBar = () => {
         </Stack>
       )}
 
-      <Stack direction="row">
+      <Stack
+        direction="row"
+        display={"flex"}
+        alignItems={"center"}
+        justifyContent={"space-between"}
+        gap={5}
+      >
+        <Text fontWeight={"bold"} fontSize={"xl"}>
+          {user.name.firstName} {user.name.lastName}
+        </Text>
         {isAuthenticated && <Button onClick={logoutHandler}>Logout</Button>}
       </Stack>
     </Box>
