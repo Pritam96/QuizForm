@@ -88,24 +88,27 @@ const QuestionSet = ({ questionSet }) => {
                 </Text>
               )}
             </Box>
-            <Box textAlign={"right"}>
-              <Button
-                variant="outline"
-                colorPalette={"red"}
-                onClick={addQuestionOrSubmitAnswerSet}
-                disabled={
-                  user.role === "user" && answerSet?.status === "Modified"
-                }
-              >
-                {user.role === "admin" && "Add a question"}
-                {user.role === "user" &&
-                  answerSet?.status === "Pending" &&
-                  "Submit your paper"}
-                {user.role === "user" &&
-                  answerSet?.status === "Modified" &&
-                  "Paper is submitted"}
-              </Button>
-            </Box>
+            {answerSet ||
+              (user.role === "admin" && (
+                <Box textAlign={"right"}>
+                  <Button
+                    variant="outline"
+                    colorPalette={"red"}
+                    onClick={addQuestionOrSubmitAnswerSet}
+                    disabled={
+                      user.role === "user" && answerSet?.status === "Modified"
+                    }
+                  >
+                    {user.role === "admin" && "Add a question"}
+                    {user.role === "user" &&
+                      answerSet?.status === "Pending" &&
+                      "Submit your paper"}
+                    {user.role === "user" &&
+                      answerSet?.status === "Modified" &&
+                      "Paper is submitted"}
+                  </Button>
+                </Box>
+              ))}
           </Box>
         )}
       </Card.Body>
