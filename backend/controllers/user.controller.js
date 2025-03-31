@@ -97,7 +97,10 @@ export const removeAnswer = async (req, res) => {
 // GET /api/user/submit/:id   AnswerSet id required
 export const submitAnswerSet = async (req, res) => {
   try {
-    const answerSet = await AnswerSet.findById(req.params.id);
+    let answerSet = await AnswerSet.findById(req.params.id).populate(
+      "questionSetId"
+    );
+
     if (!answerSet) {
       return res
         .status(404)
@@ -116,9 +119,35 @@ export const submitAnswerSet = async (req, res) => {
         .json({ success: false, message: "Answer set is empty." });
     }
 
+    const answeredQuestionIds = answerSet.answers.map((answer) =>
+      answer.questionId.toString()
+    );
+
+    // Filter for unanswered questions and create default answers
+    const defaultAnswers = answerSet.questionSetId.questions
+      .filter(
+        (question) => !answeredQuestionIds.includes(question._id.toString())
+      )
+      .map((question) => ({
+        questionId: question._id,
+        answerText: "",
+        status: "Pending",
+      }));
+
+    // Only update if there are unanswered questions
+    if (defaultAnswers.length > 0) {
+      answerSet = await AnswerSet.findByIdAndUpdate(
+        req.params.id,
+        { $push: { answers: { $each: defaultAnswers } } },
+        { new: true }
+      );
+    }
+
+    // Update status to Modified
     answerSet.status = "Modified";
-    await answerSet.save({ validateModifiedOnly: true });
-    return res.status(201).json({ success: true, answerSet });
+    await answerSet.save();
+
+    return res.status(200).json({ success: true, answerSet });
   } catch (error) {
     console.error("Error while submitting answer set:", error);
     return res

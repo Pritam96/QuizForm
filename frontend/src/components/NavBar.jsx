@@ -50,7 +50,8 @@ const NavBar = () => {
         gap={5}
       >
         <Text fontWeight={"bold"} fontSize={"xl"}>
-          {user.name.firstName} {user.name.lastName}
+          {user?.name?.firstName} {user?.name?.lastName}{" "}
+          {user && `(${user?.role})`}
         </Text>
         {isAuthenticated && <Button onClick={logoutHandler}>Logout</Button>}
       </Stack>

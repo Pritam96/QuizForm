@@ -20,7 +20,7 @@ const AnswerSchema = Schema(
           ref: "Question",
           required: true,
         },
-        answerText: { type: String, required: true },
+        answerText: { type: String },
         status: {
           type: String,
           enum: ["Pending", "Reviewed"],
