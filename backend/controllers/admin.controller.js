@@ -322,7 +322,9 @@ export const modifyAnswer = async (req, res) => {
       });
     }
 
-    const answerSet = await AnswerSet.findById(req.params.id);
+    const answerSet = await AnswerSet.findById(req.params.id)
+      .populate("questionSetId", "title description questions")
+      .populate("userId", "name email");
     if (!answerSet) {
       return res
         .status(404)
@@ -361,7 +363,9 @@ export const modifyAnswer = async (req, res) => {
 // GET /api/admin/approve/:id
 export const approveAnswerSet = async (req, res) => {
   try {
-    const answerSet = await AnswerSet.findById(req.params.id);
+    const answerSet = await AnswerSet.findById(req.params.id)
+      .populate("questionSetId", "title description questions")
+      .populate("userId", "name email");
     if (!answerSet) {
       return res
         .status(404)

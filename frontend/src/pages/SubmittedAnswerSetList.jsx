@@ -76,104 +76,112 @@ const SubmittedAnswerSetList = () => {
   return (
     <Box p={10}>
       <Box mt={10}>
-        {!isLoading && answerSetList?.length > 0 ? (
-          <Stack gap={4}>
-            {answerSetList.map((answerSet) => (
-              <Card.Root key={answerSet._id}>
-                <Card.Body>
-                  <Card.Title
-                    fontWeight="bold"
-                    fontSize="xl"
-                    textAlign={"center"}
-                    cursor="pointer"
-                    onClick={toggleOpen}
-                  >
-                    {answerSet.questionSetId.title}
-                  </Card.Title>
+        {!isLoading && (
+          <>
+            {answerSetList?.length > 0 ? (
+              <Stack gap={4}>
+                {answerSetList.map((answerSet) => (
+                  <Card.Root key={answerSet._id}>
+                    <Card.Body>
+                      <Card.Title
+                        fontWeight="bold"
+                        fontSize="xl"
+                        textAlign={"center"}
+                        cursor="pointer"
+                        onClick={toggleOpen}
+                      >
+                        {answerSet.questionSetId.title}
+                      </Card.Title>
 
-                  {answerSet.questionSetId.description && (
-                    <Card.Description fontSize="md" textAlign={"center"}>
-                      {answerSet.questionSetId.description}
-                    </Card.Description>
-                  )}
+                      {answerSet.questionSetId.description && (
+                        <Card.Description fontSize="md" textAlign={"center"}>
+                          {answerSet.questionSetId.description}
+                        </Card.Description>
+                      )}
 
-                  {isOpen && (
-                    <Box>
-                      <Box p={5}>
-                        {answerSet.questionSetId.questions &&
-                          answerSet.questionSetId.questions.length > 0 && (
-                            <Text
-                              fontSize="xl"
-                              fontWeight="bold"
-                              mb={4}
-                              color="gray.400"
-                            >
-                              Questions in {answerSet.questionSetId.title}
-                            </Text>
-                          )}
-                        {answerSet.questionSetId.questions &&
-                        answerSet.questionSetId.questions.length > 0 ? (
-                          <Box
-                            listStyleType="inside"
-                            fontWeight="semibold"
-                            px={6}
-                          >
-                            {answerSet.questionSetId.questions.map(
-                              (question, index) => (
-                                <Question
-                                  key={question._id} // Fixed: Use question._id instead of index
-                                  questionSet={answerSet.questionSetId}
-                                  question={question}
-                                  index={index}
-                                />
-                              )
+                      {isOpen && (
+                        <Box>
+                          <Box p={5}>
+                            {answerSet.questionSetId.questions &&
+                              answerSet.questionSetId.questions.length > 0 && (
+                                <Text
+                                  fontSize="xl"
+                                  fontWeight="bold"
+                                  mb={4}
+                                  color="gray.400"
+                                >
+                                  Questions in {answerSet.questionSetId.title}
+                                </Text>
+                              )}
+                            {answerSet.questionSetId.questions &&
+                            answerSet.questionSetId.questions.length > 0 ? (
+                              <Box
+                                listStyleType="inside"
+                                fontWeight="semibold"
+                                px={6}
+                              >
+                                {answerSet.questionSetId.questions.map(
+                                  (question, index) => (
+                                    <Question
+                                      key={question._id} // Fixed: Use question._id instead of index
+                                      questionSet={answerSet.questionSetId}
+                                      question={question}
+                                      index={index}
+                                    />
+                                  )
+                                )}
+                              </Box>
+                            ) : (
+                              <Text fontSize={"lg"} textAlign={"center"}>
+                                No questions found. Please add some questions.
+                              </Text>
                             )}
                           </Box>
-                        ) : (
-                          <Text fontSize={"sm"} textAlign={"center"}>
-                            No questions found. Please add some questions.
-                          </Text>
-                        )}
-                      </Box>
-                      <Box textAlign={"right"}>
-                        {user.role === "user" && (
-                          <Button
-                            variant="outline"
-                            colorPalette={"red"}
-                            onClick={() => userOrAdminSubmitAnswerSet(answerSet._id)}
-                            disabled={answerSet?.status !== "Pending"}
-                          >
-                            {answerSet?.status === "Pending" &&
-                              "Submit your paper"}
-                            {answerSet?.status !== "Pending" &&
-                              "Paper is submitted"}
-                          </Button>
-                        )}
+                          <Box textAlign={"right"}>
+                            {user.role === "user" && (
+                              <Button
+                                variant="outline"
+                                colorPalette={"red"}
+                                onClick={() =>
+                                  userOrAdminSubmitAnswerSet(answerSet._id)
+                                }
+                                disabled={answerSet?.status !== "Pending"}
+                              >
+                                {answerSet?.status === "Pending" &&
+                                  "Submit your paper"}
+                                {answerSet?.status !== "Pending" &&
+                                  "Paper is submitted"}
+                              </Button>
+                            )}
 
-                        {user.role === "admin" && (
-                          <Button
-                            variant="outline"
-                            colorPalette={"red"}
-                            onClick={() => userOrAdminSubmitAnswerSet(answerSet._id)}
-                            disabled={answerSet?.status === "Approved"}
-                          >
-                            {answerSet?.status !== "Approved"
-                              ? "Approve"
-                              : "Approved"}
-                          </Button>
-                        )}
-                      </Box>
-                    </Box>
-                  )}
-                </Card.Body>
-              </Card.Root>
-            ))}
-          </Stack>
-        ) : (
-          <Text textAlign="center" fontSize="lg">
-            {" "}
-            No submitted answer sets found.
-          </Text>
+                            {user.role === "admin" && (
+                              <Button
+                                variant="outline"
+                                colorPalette={"red"}
+                                onClick={() =>
+                                  userOrAdminSubmitAnswerSet(answerSet._id)
+                                }
+                                disabled={answerSet?.status === "Approved"}
+                              >
+                                {answerSet?.status !== "Approved"
+                                  ? "Approve"
+                                  : "Approved"}
+                              </Button>
+                            )}
+                          </Box>
+                        </Box>
+                      )}
+                    </Card.Body>
+                  </Card.Root>
+                ))}
+              </Stack>
+            ) : (
+              <Text textAlign="center" fontSize="lg">
+                {" "}
+                No submitted answer sets found.
+              </Text>
+            )}
+          </>
         )}
       </Box>
     </Box>

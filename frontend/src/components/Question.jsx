@@ -35,6 +35,16 @@ const Question = ({ questionSet, question, index }) => {
 
   const submitHandler = async () => {
     if (!questionSet || !question) return;
+    if (!answerText) {
+      toaster.create({
+        title: "Error",
+        description: "Provide an answer",
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
     try {
       await submitAnswer(
         questionSet._id,
@@ -49,6 +59,11 @@ const Question = ({ questionSet, question, index }) => {
         duration: 3000,
         isClosable: true,
       });
+      // if current path is "/" then only redirect to "/answers"
+      if (window.location.pathname === "/") {
+        console.log("Redirecting to /answers");
+        navigate(`/answers`);
+      }
     } catch (error) {
       toaster.create({
         title: "Error",
@@ -62,6 +77,16 @@ const Question = ({ questionSet, question, index }) => {
 
   const updateHandler = async () => {
     if (!selectedAnswerSet || !answer) return;
+    if (!answerText) {
+      toaster.create({
+        title: "Error",
+        description: "Provide an answer",
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
     try {
       await adminUpdateAnswer(
         selectedAnswerSet._id,

@@ -24,13 +24,13 @@ const Home = () => {
       user.role === "admin"
         ? await adminGetAllQuestionSet(token)
         : await userGetAvailableQuestionSet(token);
-      toaster.create({
-        title: "Success",
-        description: "Question sets fetched successfully!",
-        type: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      // toaster.create({
+      //   title: "Success",
+      //   description: "Question sets fetched successfully!",
+      //   type: "success",
+      //   duration: 3000,
+      //   isClosable: true,
+      // });
     } catch (error) {
       toaster.create({
         title: "Error",
@@ -48,12 +48,18 @@ const Home = () => {
         {user.role === "admin" && <CreateQuestionSetForm />}
       </Box>
       <Box mt={10}>
-        {!questionSetListLoading && questionSetList.length && (
+        {!questionSetListLoading && questionSetList.length > 0 ? (
           <Stack gap={4}>
             {questionSetList.map((questionSet) => (
               <QuestionSet key={questionSet._id} questionSet={questionSet} />
             ))}
           </Stack>
+        ) : (
+          <Text fontSize={"lg"} textAlign={"center"}>
+            {user.role !== "admin"
+              ? "No question sets found."
+              : "No questions found. Please add some questions."}
+          </Text>
         )}
       </Box>
     </Box>

@@ -301,7 +301,7 @@ const CreateQuestionForm = () => {
                 ))}
               </Box>
             ) : (
-              <Text fontSize={"sm"} textAlign={"center"}>
+              <Text fontSize={"lg"} textAlign={"center"}>
                 No questions found. Please add some questions.
               </Text>
             )}

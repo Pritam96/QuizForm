@@ -8,7 +8,20 @@ export const getAvailableQuestionSets = async (req, res) => {
       assignedUsers: req.user._id,
     }).sort({ updatedAt: -1 });
 
-    return res.status(200).json({ success: true, questionSets });
+    const answerSets = await AnswerSet.find({ userId: req.user._id });
+
+    const questionSetIds = answerSets.map((answerSet) =>
+      answerSet.questionSetId.toString()
+    );
+
+    // Un-attempted QuestionSets are filtered out from the list
+    const filteredQuestionSets = questionSets.filter(
+      (questionSet) => !questionSetIds.includes(questionSet._id.toString())
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, questionSets: filteredQuestionSets });
   } catch (error) {
     console.error("Error while getting available question sets:", error);
     return res
@@ -43,6 +56,17 @@ export const addAnswer = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Question not found." });
+    }
+
+    const existingAnswer = await AnswerSet.findOne({
+      questionSetId: questionSet._id,
+      "answers.questionId": questionId,
+    });
+
+    if (existingAnswer) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Answer is already submitted." });
     }
 
     const userId = req.user?._id;
@@ -162,6 +186,9 @@ export const getAllAnswerSets = async (req, res) => {
     const answerSets = await AnswerSet.find({
       userId: req.user._id,
     })
+      .sort({
+        updatedAt: -1,
+      })
       .populate("questionSetId")
       .populate("userId", "name email");
 

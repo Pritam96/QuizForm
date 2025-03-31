@@ -171,7 +171,8 @@ const AnswerProvider = ({ children }) => {
       setAnswerSetList((prevAnswerSetList) =>
         prevAnswerSetList.map((answerSet) =>
           answerSet._id === answerSetId
-            ? { ...answerSet, status: data.answerSet.status }
+            ? // { ...answerSet, status: data.answerSet.status, answers: data.answerSet.answers }
+              data.answerSet
             : answerSet
         )
       );
