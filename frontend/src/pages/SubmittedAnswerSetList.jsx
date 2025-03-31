@@ -4,6 +4,7 @@ import { useAnswer } from "../context/AnswerProvider";
 import { useAuth } from "../context/AuthProvider";
 import Question from "../components/Question";
 import { toaster } from "../components/ui/toaster";
+import { FaFilePdf } from "react-icons/fa6";
 
 const SubmittedAnswerSetList = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -123,7 +124,7 @@ const SubmittedAnswerSetList = () => {
                                 {answerSet.questionSetId.questions.map(
                                   (question, index) => (
                                     <Question
-                                      key={question._id} // Fixed: Use question._id instead of index
+                                      key={question._id}
                                       questionSet={answerSet.questionSetId}
                                       question={question}
                                       index={index}
@@ -137,37 +138,69 @@ const SubmittedAnswerSetList = () => {
                               </Text>
                             )}
                           </Box>
-                          <Box textAlign={"right"}>
-                            {user.role === "user" && (
-                              <Button
-                                variant="outline"
-                                colorPalette={"red"}
-                                onClick={() =>
-                                  userOrAdminSubmitAnswerSet(answerSet._id)
-                                }
-                                disabled={answerSet?.status !== "Pending"}
-                              >
-                                {answerSet?.status === "Pending" &&
-                                  "Submit your paper"}
-                                {answerSet?.status !== "Pending" &&
-                                  "Paper is submitted"}
-                              </Button>
-                            )}
+                          <Box
+                            display={"flex"}
+                            gap={5}
+                            justifyContent={"space-between"}
+                            alignItems={"center"}
+                          >
+                            <Box>
+                              {user.role === "admin" && (
+                                <Text fontSize={"sm"}>
+                                  Submitted By:{" "}
+                                  {answerSet.userId.name.firstName}{" "}
+                                  {answerSet.userId.name.LastName}
+                                </Text>
+                              )}
+                            </Box>
+                            <Box
+                              display={"flex"}
+                              gap={5}
+                              justifyContent={"end"}
+                              alignItems={"center"}
+                            >
+                              {user.role === "user" &&
+                                answerSet.status === "Approved" && (
+                                  <Button
+                                    variant="outline"
+                                    colorPalette={"yellow"}
+                                    onClick={() => {}}
+                                  >
+                                    <FaFilePdf />
+                                  </Button>
+                                )}
 
-                            {user.role === "admin" && (
-                              <Button
-                                variant="outline"
-                                colorPalette={"red"}
-                                onClick={() =>
-                                  userOrAdminSubmitAnswerSet(answerSet._id)
-                                }
-                                disabled={answerSet?.status === "Approved"}
-                              >
-                                {answerSet?.status !== "Approved"
-                                  ? "Approve"
-                                  : "Approved"}
-                              </Button>
-                            )}
+                              {user.role === "user" && (
+                                <Button
+                                  variant="outline"
+                                  colorPalette={"red"}
+                                  onClick={() =>
+                                    userOrAdminSubmitAnswerSet(answerSet._id)
+                                  }
+                                  disabled={answerSet?.status !== "Pending"}
+                                >
+                                  {answerSet?.status === "Pending" &&
+                                    "Submit your paper"}
+                                  {answerSet?.status !== "Pending" &&
+                                    "Paper is submitted"}
+                                </Button>
+                              )}
+
+                              {user.role === "admin" && (
+                                <Button
+                                  variant="outline"
+                                  colorPalette={"red"}
+                                  onClick={() =>
+                                    userOrAdminSubmitAnswerSet(answerSet._id)
+                                  }
+                                  disabled={answerSet?.status === "Approved"}
+                                >
+                                  {answerSet?.status !== "Approved"
+                                    ? "Approve"
+                                    : "Approved"}
+                                </Button>
+                              )}
+                            </Box>
                           </Box>
                         </Box>
                       )}
